@@ -141,13 +141,3 @@ if __name__ == "__main__":
 	print "-------after train---------"
 	obj.print_tree()
 	
-	#print "obj.root.son"
-	#print obj.root.son
-	#print "obj.root.son[0][1].son"
-	#print obj.root.son[0][1].son
-	#print "obj.root.son[1][1].son"
-	#print obj.root.son[1][1].son
-	#print "obj.root.son[2][1].son"
-	#print obj.root.son[2][1].son
-	
-
