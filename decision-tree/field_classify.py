@@ -62,7 +62,7 @@ def con_entropy(xylist, xi):
 
 #def slipt_x(xset, xylist, H,  
 
-def feature_split(xylist, size, a):
+def feature_split(xylist, size, a = 0):
 	ylist=map(lambda xy: xy[1], xylist)
 	ig = entropy(ylist)  
 	xlist = map(lambda xy: xy[0], xylist)
@@ -126,12 +126,11 @@ def feature_split(xylist, size, a):
 
 def info_gain(xylist):
 	ylist = map(lambda xy: xy[1], xylist)
-	ig = entropy(ylist)  
-	#print "the entropy of data is [%f]" % ig
+	H = entropy(ylist)  
+	ig = H
 
 	Xi = {}
 	Dsize = 0
-	split_entropy = 0.0;
 	for xy in xylist:
 		Dsize += 1
 		if xy[0] in Xi:
@@ -141,8 +140,7 @@ def info_gain(xylist):
 	for xi in Xi.keys():
 		conH = con_entropy(xylist, xi) 
 		ig -= float(Xi[xi]) / Dsize * conH
-		split_entropy +=  -float(Xi[xi]) / Dsize * math.log(float(Xi[xi]) / Dsize)
-	igr = ig/ split_entropy
+	igr = ig/H
 	return ig, igr
 
 

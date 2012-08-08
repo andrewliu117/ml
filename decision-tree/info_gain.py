@@ -21,11 +21,9 @@ def process_data():
 	for line in f:
 		lf = string.split(line, ",")
 		x = {}
-		#x["outlook"] = outlook[trim(lf[0])]
-		#x["temperature"] = int(lf[1])/5
-		#x["humidity"] = int(lf[2])/5
-		#x["windy"] =  windy[trim(lf[3])]
-		x["x"] = (outlook[trim(lf[0])], int(lf[1])/5, int(lf[2])/5, windy[trim(lf[3])])
+		#x["x"] = (outlook[trim(lf[0])], int(lf[1])/5, int(lf[2])/5, windy[trim(lf[3])])
+		#x["x"] = (outlook[trim(lf[0])], int(lf[1])/6, int(lf[2])/6, windy[trim(lf[3])])
+		x["x"] = (outlook[trim(lf[0])], int(lf[1])/10, int(lf[2])/10, windy[trim(lf[3])])
 		x["y"] = yset[trim(lf[4])]
 		dataset.append(x)
 	return dataset
@@ -63,7 +61,6 @@ def info_gain(dataset, H, i):
 	ig = H
 	Xi = {}
 	Dsize = 0
-	split_entropy = 0.0;
 	for data in dataset:
 		Dsize += 1
 		if data["x"][i] in Xi:
@@ -73,12 +70,8 @@ def info_gain(dataset, H, i):
 	for xi in Xi.keys():
 		conH = con_entropy(dataset, xi, i) 
 		ig -= float(Xi[xi]) / Dsize * conH
-		split_entropy +=  -float(Xi[xi]) / Dsize * math.log(float(Xi[xi]) / Dsize)
-	#	print ig, split_entropy
-	#sys.exit(0)
-	igr = ig/ split_entropy
+	igr = ig/H
 	return ig, igr
-
 
 if __name__ == "__main__":
 	dataset = process_data()

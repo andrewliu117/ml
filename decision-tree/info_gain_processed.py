@@ -63,7 +63,6 @@ def info_gain(dataset, H, i):
 	ig = H
 	Xi = {}
 	Dsize = 0
-	split_entropy = 0.0;
 	for data in dataset:
 		Dsize += 1
 		if data["x"][i] in Xi:
@@ -73,10 +72,7 @@ def info_gain(dataset, H, i):
 	for xi in Xi.keys():
 		conH = con_entropy(dataset, xi, i) 
 		ig -= float(Xi[xi]) / Dsize * conH
-		split_entropy +=  -float(Xi[xi]) / Dsize * math.log(float(Xi[xi]) / Dsize)
-	#	print ig, split_entropy
-	#sys.exit(0)
-	igr = ig/ split_entropy
+	igr = ig/H
 	return ig, igr
 
 
