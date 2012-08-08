@@ -1,0 +1,18 @@
+1. 文件说明
+
+c45.py					c45算法的实习 
+chi_square.py			卡方检验，可用于特征选择
+field_classify.py		利用信息增益，进行字段划分, 将联系的字段，划分为离散的字段，例如对温度的划分
+info_gain_processed.py	计算字段划分后的golf.data_processed，信息增益
+info_gain.py			计算信息增益
+特征选择.docx			特征选择讲义	
+
+
+
+2.其他说明
+
+c45.py中画生成的决策树，需要使用到：graphviz, pygraphviz
+graphviz 
+	http://www.graphviz.org/
+pygraphviz
+	http://networkx.lanl.gov/pygraphviz/#
