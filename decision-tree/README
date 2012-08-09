@@ -6,6 +6,11 @@ field_classify.py		利用信息增益，进行字段划分, 将联系的字段�
 info_gain_processed.py	计算字段划分后的golf.data_processed，信息增益
 info_gain.py			计算信息增益
 特征选择.docx			特征选择讲义	
+decision tree.docx		决策树讲义
+机器学习分类方法详细讨论_决策树和随机森林.ppt
+						网上找到的资料
+hypo/*					基于hypo.data实习的决策树
+
 
 
 
