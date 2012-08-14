@@ -1,0 +1,5 @@
+最大熵 IIS (improved iterative scaling)实现
+jl_maxent.py 为江岭实现的
+
+maxent4.py 为最终版
+	参考 李航，《统计学习方法》6.3节
