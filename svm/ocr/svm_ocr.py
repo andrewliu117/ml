@@ -22,6 +22,7 @@ class GV:
         self.models = []         # 训练的模型
         self.diff_dict = []         # 用于缓存预测知与真实y之差Ei
         self.cur_mno = 0         # 当前正使用或训练的模型
+        self.cache_kernel = []   # 缓存kernel函数的计算结果
 
     def init_models(self):
         for i in range(0, 10):
@@ -29,6 +30,14 @@ class GV:
             for j in range(len(self.samples)):
                 m.a.append(0)
             self.models.append(m)
+
+    def init_cache_kernel(self):
+        i = 0
+        for mi in self.samples: 
+            self.cache_kernel.append([])
+            for mj in self.samples:
+                self.cache_kernel[i].append(kernel(mi,mj))
+            i += 1
 
 class image:
     def __init__(self):
@@ -72,6 +81,7 @@ def kernel(mj, mi):
     ret = math.exp(-ret/(2*dlt*dlt))
     return ret
 
+
 # g(x)
 def predict(m):
     pred = 0.0
@@ -81,9 +91,17 @@ def predict(m):
     pred += gv.models[gv.cur_mno].b 
     return pred
 
+def predict_train(i):
+    pred = 0.0
+    for j in range(len(gv.samples)):
+        if gv.models[gv.cur_mno].a[j] != 0:
+            pred += gv.models[gv.cur_mno].a[j] * gv.samples[j].label * gv.cache_kernel[j][i]
+    pred += gv.models[gv.cur_mno].b 
+    return pred
+
 # 决策函数对xi的预测值和真实值之差
 def predict_diff_real(i):
-    diff = predict(gv.samples[i])
+    diff = predict_train(i)
     diff -= gv.samples[i].label
     return diff
 
@@ -128,9 +146,9 @@ def SVM_SMO_train(T, times, C, Mno):
             if (gv.samples[i].label * Ei < -T and ai < C) or (gv.samples[i].label * Ei > T and ai > 0):
                 for j in range(len(gv.samples)):
                     if j == i: continue
-                    kii = kernel(gv.samples[i],gv.samples[i])
-                    kjj = kernel(gv.samples[j],gv.samples[j])
-                    kji = kij = kernel(gv.samples[i],gv.samples[j])
+                    kii = gv.cache_kernel[i][i]
+                    kjj = gv.cache_kernel[j][j]
+                    kji = kij = gv.cache_kernel[i][j] 
                     eta = kii + kjj - 2 * kij 
                     if eta <= 0: continue
                     new_aj = gv.models[gv.cur_mno].a[j] + gv.samples[j].label * (gv.diff_dict[i] - gv.diff_dict[j]) / eta # f 7.106
@@ -165,7 +183,7 @@ def SVM_SMO_train(T, times, C, Mno):
                     update_diff_dict()
                     updated = True
                     print "iterate: %d, changepair: i: %d, j:%d" %(time, i, j)
-                    break
+                    #break
 
 
 # 测试数据
@@ -179,19 +197,48 @@ def test():
                 print img.fn
                 sys.exit(0)
 
-    
+def save_models():
+    for i in range(10):
+        fn = open(str(i) + "_a.model", "w")
+        for ai in gv.models[i].a:
+            fn.write(ai)
+            fn.write('\n')
+        fn.close()
+        fn = open(str(i) + "_b.model", "w")
+        fn.write(gv.models[i].b)
+        fn.close()
+
+def load_models():
+    for i in range(10):
+        fn = open(str(i) + "_a.model", "r")
+        j = 0
+        for line in fn:
+            gv.models[i].a[j] = float(line)
+            j += 1
+        fn.close()
+        fn = open(str(i) + "_b.model", "r")
+        gv.models[i].b = float(fn.readline())
+        fn.close()
 
 if __name__ == "__main__":
+    training = True
     loaddata("trainingDigits/", gv.samples)
     loaddata("testDigits/", gv.tests)    
     print len(gv.samples)
     print len(gv.tests)
 
+    gv.init_cache_kernel()
     gv.init_models()
+
+    print "init_models done"
 
     T = 0.01
     C = 5
-    for i in range(10):
-        SVM_SMO_train(T, 100, C, i)
+    if training == True:
+        for i in range(10):
+            print "traning model no:", i
+            SVM_SMO_train(T, 100, C, i)
+        save_models()
 
+    #load_models()
     test()
