@@ -265,7 +265,7 @@ if __name__ == "__main__":
 
     print "init_models done"
 
-    T = 0.01
+    T = 0.1
     C = 1
     if training == True:
         for i in range(10):

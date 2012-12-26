@@ -84,14 +84,21 @@ def loaddata(dirpath, col):
 ######
 # 高斯核函数
 ######
+#def kernel(mj, mi):
+#    if mj == mi:
+#        return math.exp(0)
+#    dlt = 15
+#    ret = 0.0
+#    for i in range(len(mj.data)):
+#        ret += math.pow(int(mj.data[i]) - int(mi.data[i]), 2)
+#    ret = math.exp(-ret/(2*dlt*dlt))
+#    return ret
+
 def kernel(mj, mi):
-    if mj == mi:
-        return math.exp(0)
-    dlt = 15
     ret = 0.0
     for i in range(len(mj.data)):
-        ret += math.pow(int(mj.data[i]) - int(mi.data[i]), 2)
-    ret = math.exp(-ret/(2*dlt*dlt))
+        for j in range(len(mj.data[i])):
+            ret += int(mj.data[i][j]) * int(mi.data[i][j])
     return ret
 
 
@@ -191,7 +198,7 @@ def SVM_SMO_train(T, times, C, Mno):
                         new_aj = H
                     if new_aj < L:
                         new_aj = L
-                    if abs(a2_old - new_aj) < 0.01:
+                    if abs(a2_old - new_aj) < 0.0001:
                         print "j = %d, is not moving enough" % j
                         continue
 
@@ -266,7 +273,7 @@ if __name__ == "__main__":
     print "init_models done"
 
     T = 0.01
-    C = 1
+    C = 10
     if training == True:
         for i in range(10):
             print "traning model no:", i
