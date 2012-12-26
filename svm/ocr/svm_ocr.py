@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+##!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 ### ###
@@ -35,8 +35,13 @@ class GV:
         i = 0
         for mi in self.samples: 
             self.cache_kernel.append([])
+            j = 0
             for mj in self.samples:
-                self.cache_kernel[i].append(kernel(mi,mj))
+                if i > j:
+                    self.cache_kernel[i].append(self.cache_kernel[j][i])
+                else:
+                    self.cache_kernel[i].append(kernel(mi,mj))
+                j += 1
             i += 1
 
 class image:
@@ -114,15 +119,26 @@ def predict_diff_real(i):
     diff -= gv.samples[i].label[gv.cur_mno]
     return diff
 
+def predict_diff_real_optimized(idx, i, new_ai, j, new_aj, new_b):
+    diff = (new_ai - gv.models[gv.cur_mno].a[i])* gv.samples[i].label[gv.cur_mno] * gv.cache_kernel[i][idx]
+    diff += (new_aj - gv.models[gv.cur_mno].a[j])* gv.samples[j].label[gv.cur_mno] * gv.cache_kernel[j][idx]
+    diff += new_b - gv.models[gv.cur_mno].b
+    diff += gv.diff_dict[idx]
+    return diff
+
 
 def init_predict_diff_real_dict():
     gv.diff_dict = []
     for i in range(len(gv.samples)):
         gv.diff_dict.append(predict_diff_real(i))
 
-def update_diff_dict():
-    for i in range(len(gv.samples)):
-        gv.diff_dict[i] = predict_diff_real(i)
+def update_diff_dict(i, new_ai, j, new_bj, new_b):
+    for idx in range(len(gv.samples)):
+        # 原来的函数
+        # gv.diff_dict[idx] = predict_diff_real(idx)
+        # 有优化后的
+        gv.diff_dict[idx] = predict_diff_real_optimized(idx, i, new_ai, j, new_bj, new_b)
+        
 
 def update_samples_label(num):
     for img in gv.samples:
@@ -143,10 +159,10 @@ def SVM_SMO_train(T, times, C, Mno):
     time = 0
     gv.cur_mno = Mno
     update_samples_label(Mno)
-    for img in gv.samples:
-        img.printself()
-        print gv.cur_mno
-    #   raw_input("press anykey to continue:")
+    #for img in gv.samples:
+    #    img.printself()
+    #    print gv.cur_mno
+    ##   raw_input("press anykey to continue:")
     init_predict_diff_real_dict()
     updated = True
     while time < times and updated:
@@ -191,10 +207,10 @@ def SVM_SMO_train(T, times, C, Mno):
                     elif new_aj > 0 and new_aj < C: new_b = new_b2
                     else: new_b = (new_b1 + new_b2) / 2.0
 
+                    update_diff_dict(i, new_ai, j, new_aj, new_b)
                     gv.models[gv.cur_mno].a[i] = new_ai
                     gv.models[gv.cur_mno].a[j] = new_aj
                     gv.models[gv.cur_mno].b = new_b
-                    update_diff_dict()
                     updated = True
                     print "iterate: %d, changepair: i: %d, j:%d" %(time, i, j)
                     #break
@@ -243,14 +259,16 @@ def load_models():
         fn.close()
 
 if __name__ == "__main__":
-    training = True
+    #training = True
+    training = False 
     loaddata("trainingDigits/", gv.samples)
-    loaddata("testDigits/", gv.tests)    
-    #loaddata("trainingDigits/", gv.tests)    
+    #loaddata("testDigits/", gv.tests)    
+    loaddata("trainingDigits/", gv.tests)    
     print len(gv.samples)
     print len(gv.tests)
 
-    gv.init_cache_kernel()
+    if training == True:
+        gv.init_cache_kernel()
     gv.init_models()
 
     print "init_models done"
@@ -262,6 +280,8 @@ if __name__ == "__main__":
             print "traning model no:", i
             SVM_SMO_train(T, 100, C, i)
         save_models()
-
-    #load_models()
+    else:
+        load_models()
+        for i in range(10):
+            update_samples_label(i)
     test()
