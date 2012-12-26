@@ -1,4 +1,4 @@
-##!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 ### ###
@@ -87,7 +87,7 @@ def loaddata(dirpath, col):
 def kernel(mj, mi):
     if mj == mi:
         return math.exp(0)
-    dlt = 100
+    dlt = 10
     ret = 0.0
     for i in range(len(mj.data)):
         ret += math.pow(int(mj.data[i]) - int(mi.data[i]), 2)
@@ -138,7 +138,6 @@ def update_diff_dict(i, new_ai, j, new_bj, new_b):
         # gv.diff_dict[idx] = predict_diff_real(idx)
         # 有优化后的
         gv.diff_dict[idx] = predict_diff_real_optimized(idx, i, new_ai, j, new_bj, new_b)
-        
 
 def update_samples_label(num):
     for img in gv.samples:
@@ -224,8 +223,6 @@ def test():
         print "test for", img.fn
         for mno in range(10):
             gv.cur_mno = mno
-            # TODO: predict中的label
-            # update_samples_label(mno)
             if predict(img) > 0:
                 #img.label.append(mno)
                 print mno
@@ -237,33 +234,33 @@ def test():
 
 def save_models():
     for i in range(10):
-        fn = open(str(i) + "_a.model", "w")
+        fn = open("models/" + str(i) + "_a.model", "w")
         for ai in gv.models[i].a:
             fn.write(str(ai))
             fn.write('\n')
         fn.close()
-        fn = open(str(i) + "_b.model", "w")
+        fn = open("models/" + str(i) + "_b.model", "w")
         fn.write(str(gv.models[i].b))
         fn.close()
 
 def load_models():
     for i in range(10):
-        fn = open(str(i) + "_a.model", "r")
+        fn = open("models/" + str(i) + "_a.model", "r")
         j = 0
         for line in fn:
             gv.models[i].a[j] = float(line)
             j += 1
         fn.close()
-        fn = open(str(i) + "_b.model", "r")
+        fn = open("models/" + str(i) + "_b.model", "r")
         gv.models[i].b = float(fn.readline())
         fn.close()
 
 if __name__ == "__main__":
-    #training = True
-    training = False 
+    training = True
+    #training = False 
     loaddata("trainingDigits/", gv.samples)
-    #loaddata("testDigits/", gv.tests)    
-    loaddata("trainingDigits/", gv.tests)    
+    loaddata("testDigits/", gv.tests)    
+    #loaddata("trainingDigits1/", gv.tests)    
     print len(gv.samples)
     print len(gv.tests)
 
@@ -273,8 +270,8 @@ if __name__ == "__main__":
 
     print "init_models done"
 
-    T = 0.01
-    C = 5
+    T = 0.001
+    C = 10
     if training == True:
         for i in range(10):
             print "traning model no:", i

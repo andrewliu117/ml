@@ -15,7 +15,8 @@ class svm_params:
 params = svm_params()
 e_dict = []
 
-train_data = "svm.train_mix"
+#train_data = "svm.train_mix"
+train_data = "svm.train"
 
 def loaddata():
     fn = open(train_data,"r")
@@ -70,7 +71,6 @@ def train(tolerance, times, C):
     time = 0
     init_e_dict()
     updated = True
-    pause = True
     while time < times and updated:
         updated = False
         time += 1
@@ -105,7 +105,7 @@ def train(tolerance, times, C):
                         new_aj = L
                     new_ai = params.a[i] + labels[i] * labels[j] * (params.a[j] - new_aj)   # f7.109 
 
-                    if abs(params.a[j] - new_aj) < 0.001:
+                    if abs(params.a[j] - new_aj) < 0.00001:
                         print "j = %d, is not moving enough" % j
                         continue
 
@@ -121,10 +121,6 @@ def train(tolerance, times, C):
                     update_e_dict()
                     updated = True
                     print "iterate: %d, changepair: i: %d, j:%d" %(time, i, j)
-                    if pause:
-                        ch = raw_input("press anykey to continue, press n to not pause anymore:\n")
-                        if ch == 'n':
-                            pause = False
                     break
 
 def draw(toler, C):
@@ -171,14 +167,14 @@ if __name__ == "__main__":
     print samples
     print labels
     # penalty for mis classify
-    C = 5
+    C = 100
     #C = 10
     #C = 0.7
 
     # 计算精度
     #toler = 0.001
     #toler = 0.9
-    toler = 0.99999
+    toler = 0.0000001
     train(toler, 100, C)
     print "a = ", params.a
     print "b = ", params.b
