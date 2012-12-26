@@ -23,6 +23,7 @@ class GV:
         self.diff_dict = []         # 用于缓存预测知与真实y之差Ei
         self.cur_mno = 0         # 当前正使用或训练的模型
         self.cache_kernel = []   # 缓存kernel函数的计算结果
+        self.use_linear = False  # 是否使用线性核函数
 
     def init_models(self):
         for i in range(0, 10):
@@ -81,20 +82,27 @@ def loaddata(dirpath, col):
         img.fn = file
         col.append(img)
 
+def kernel(mj, mi):
+    if gv.use_linear == True:
+        return kernel_linear(mj,mi)
+    else:
+        return kernel_RBF(mj,mi)
+
 ######
 # 高斯核函数
 ######
-#def kernel(mj, mi):
-#    if mj == mi:
-#        return math.exp(0)
-#    dlt = 15
-#    ret = 0.0
-#    for i in range(len(mj.data)):
-#        ret += math.pow(int(mj.data[i]) - int(mi.data[i]), 2)
-#    ret = math.exp(-ret/(2*dlt*dlt))
-#    return ret
+def kernel_RBF(mj, mi):
+    if mj == mi:
+        return math.exp(0)
+    dlt = 10
+    ret = 0.0
+    for i in range(len(mj.data)):
+        for j in range(len(mj.data[i])):
+            ret += math.pow(int(mj.data[i][j]) - int(mi.data[i][j]), 2)
+    ret = math.exp(-ret/(2*dlt*dlt))
+    return ret
 
-def kernel(mj, mi):
+def kernel_linear(mj, mi):
     ret = 0.0
     for i in range(len(mj.data)):
         for j in range(len(mj.data[i])):
@@ -160,8 +168,9 @@ def update_samples_label(num):
 #  times: 迭代次数
 #  C: 惩罚系数
 #  Mno: 模型序号0到9
+#  step: ai移动的最小步长
 ######
-def SVM_SMO_train(T, times, C, Mno):
+def SVM_SMO_train(T, times, C, Mno, step):
     time = 0
     gv.cur_mno = Mno
     update_samples_label(Mno)
@@ -198,7 +207,7 @@ def SVM_SMO_train(T, times, C, Mno):
                         new_aj = H
                     if new_aj < L:
                         new_aj = L
-                    if abs(a2_old - new_aj) < 0.0001:
+                    if abs(a2_old - new_aj) < step:
                         print "j = %d, is not moving enough" % j
                         continue
 
@@ -221,6 +230,7 @@ def SVM_SMO_train(T, times, C, Mno):
 # 测试数据
 def test():
     recog = 0
+    recog_correct = 0
     for img in gv.tests: 
         print "test for", img.fn
         for mno in range(10):
@@ -230,8 +240,11 @@ def test():
                 print mno
                 print img.fn
                 recog += 1
+                if mno == int(img.fn[0]):
+                    recog_correct += 1
                 break
     print "recog:", recog
+    print "recog_correct:", recog_correct
     print "total:", len(gv.tests)
 
 def save_models():
@@ -259,10 +272,8 @@ def load_models():
 
 if __name__ == "__main__":
     training = True
-    #training = False 
     loaddata("trainingDigits/", gv.samples)
     loaddata("testDigits/", gv.tests)    
-    #loaddata("trainingDigits1/", gv.tests)    
     print len(gv.samples)
     print len(gv.tests)
 
@@ -272,12 +283,13 @@ if __name__ == "__main__":
 
     print "init_models done"
 
-    T = 0.01
+    T = 0.0001
     C = 10
+    step = 0.0001
     if training == True:
         for i in range(10):
             print "traning model no:", i
-            SVM_SMO_train(T, 100, C, i)
+            SVM_SMO_train(T, 100, C, i, step)
         save_models()
     else:
         load_models()

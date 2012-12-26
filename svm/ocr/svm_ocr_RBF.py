@@ -87,10 +87,11 @@ def loaddata(dirpath, col):
 def kernel(mj, mi):
     if mj == mi:
         return math.exp(0)
-    dlt = 15
+    dlt = 10
     ret = 0.0
     for i in range(len(mj.data)):
-        ret += math.pow(int(mj.data[i]) - int(mi.data[i]), 2)
+        for j in range(len(mj.data[i])):
+            ret += math.pow(int(mj.data[i][j]) - int(mi.data[i][j]), 2)
     ret = math.exp(-ret/(2*dlt*dlt))
     return ret
 
@@ -191,7 +192,7 @@ def SVM_SMO_train(T, times, C, Mno):
                         new_aj = H
                     if new_aj < L:
                         new_aj = L
-                    if abs(a2_old - new_aj) < 0.01:
+                    if abs(a2_old - new_aj) < 0.001:
                         print "j = %d, is not moving enough" % j
                         continue
 
