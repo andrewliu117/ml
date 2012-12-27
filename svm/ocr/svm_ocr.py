@@ -24,6 +24,7 @@ class GV:
         self.cur_mno = 0         # 当前正使用或训练的模型
         self.cache_kernel = []   # 缓存kernel函数的计算结果
         self.use_linear = False  # 是否使用线性核函数
+        self.RBF_dlt = 10         # 径向基函数的宽度
 
     def init_models(self):
         for i in range(0, 10):
@@ -35,6 +36,7 @@ class GV:
     def init_cache_kernel(self):
         i = 0
         for mi in self.samples: 
+            print i
             self.cache_kernel.append([])
             j = 0
             for mj in self.samples:
@@ -94,7 +96,7 @@ def kernel(mj, mi):
 def kernel_RBF(mj, mi):
     if mj == mi:
         return math.exp(0)
-    dlt = 10
+    dlt = gv.RBF_dlt
     ret = 0.0
     for i in range(len(mj.data)):
         for j in range(len(mj.data[i])):
@@ -286,6 +288,7 @@ if __name__ == "__main__":
     T = 0.0001
     C = 10
     step = 0.0001
+    gv.RBF_dlt = 8
     if training == True:
         for i in range(10):
             print "traning model no:", i
