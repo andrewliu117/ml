@@ -15,8 +15,8 @@ class svm_params:
 params = svm_params()
 e_dict = []
 
-#train_data = "svm.train_mix"
-train_data = "svm.train"
+train_data = "svm.train_mix_ok"
+#train_data = "svm.train"
 
 def loaddata():
     fn = open(train_data,"r")
@@ -121,7 +121,6 @@ def train(tolerance, times, C):
                     update_e_dict()
                     updated = True
                     print "iterate: %d, changepair: i: %d, j:%d" %(time, i, j)
-                    break
 
 def draw(toler, C):
     plt.xlabel(u"x1")
@@ -167,14 +166,13 @@ if __name__ == "__main__":
     print samples
     print labels
     # penalty for mis classify
-    C = 100
-    #C = 10
+    C = 10
     #C = 0.7
 
     # 计算精度
     #toler = 0.001
     #toler = 0.9
-    toler = 0.0000001
+    toler = 0.001
     train(toler, 100, C)
     print "a = ", params.a
     print "b = ", params.b
