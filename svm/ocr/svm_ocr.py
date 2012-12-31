@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 ### ###
+# handwriting numbers OCR based on svm.
+# data from "Machine Learning in Action" chapter 02.
 # 基于SVM的手写数字的识别程序
-# 数据：采用了《Marchine Learning in Action》第二章的数据
+# 数据：采用了《Machine Learning in Action》第二章的数据
 ### ###
 
 import sys
@@ -20,11 +22,11 @@ class GV:
         self.samples = []        # 样本数据
         self.tests = []          # 测试数据
         self.models = []         # 训练的模型
-        self.diff_dict = []         # 用于缓存预测知与真实y之差Ei
+        self.diff_dict = []      # 用于缓存预测知与真实y之差Ei
         self.cur_mno = 0         # 当前正使用或训练的模型
         self.cache_kernel = []   # 缓存kernel函数的计算结果
         self.use_linear = False  # 是否使用线性核函数
-        self.RBF_dlt = 10         # 径向基函数的宽度
+        self.RBF_dlt = 10        # 径向基函数的宽度
 
     def init_models(self):
         for i in range(0, 10):
@@ -73,7 +75,6 @@ def parse_image(path):
         img_map.append(line)
     return img_map
 
-
 # load samples and tests
 def loaddata(dirpath, col):
     files = os.listdir(dirpath)
@@ -104,6 +105,9 @@ def kernel_RBF(mj, mi):
     ret = math.exp(-ret/(2*dlt*dlt))
     return ret
 
+######
+# 线性
+######
 def kernel_linear(mj, mi):
     ret = 0.0
     for i in range(len(mj.data)):
@@ -136,6 +140,7 @@ def predict_diff_real(i):
     diff -= gv.samples[i].label[gv.cur_mno]
     return diff
 
+# 优化计算Ei
 def predict_diff_real_optimized(idx, i, new_ai, j, new_aj, new_b):
     diff = (new_ai - gv.models[gv.cur_mno].a[i])* gv.samples[i].label[gv.cur_mno] * gv.cache_kernel[i][idx]
     diff += (new_aj - gv.models[gv.cur_mno].a[j])* gv.samples[j].label[gv.cur_mno] * gv.cache_kernel[j][idx]
@@ -170,7 +175,7 @@ def update_samples_label(num):
 #  times: 迭代次数
 #  C: 惩罚系数
 #  Mno: 模型序号0到9
-#  step: ai移动的最小步长
+#  step: aj移动的最小步长
 ######
 def SVM_SMO_train(T, times, C, Mno, step):
     time = 0
@@ -228,7 +233,6 @@ def SVM_SMO_train(T, times, C, Mno, step):
                     print "iterate: %d, changepair: i: %d, j:%d" %(time, i, j)
                     #break
 
-
 # 测试数据
 def test():
     recog = 0
@@ -238,7 +242,6 @@ def test():
         for mno in range(10):
             gv.cur_mno = mno
             if predict(img) > 0:
-                #img.label.append(mno)
                 print mno
                 print img.fn
                 recog += 1
