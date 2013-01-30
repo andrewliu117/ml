@@ -16,12 +16,6 @@ def parse_image(path):
         line = line[:-2]
         for ch in line:
             img_map.append(int(ch))
-#    print img_map
-#    for i in range(32):
-#        for j in range(32):
-#            print img_map[i*32+j],
-#        print " "
-#    sys.exit(0)
     return img_map
 
 def predict(model, data):
@@ -32,7 +26,8 @@ def predict(model, data):
 
 def train_one_model(data, label, sampleNum, modelNum):
     pvalue = predict(G_WEIGHT[modelNum], data)
-    if pvalue * label > 0:
+    # the hinge loss
+    if pvalue * label >= 1:
         print "not update"
         return
     
