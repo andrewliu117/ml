@@ -33,12 +33,14 @@ def predict(model, data):
 def train_one_model(data, label, sampleNum, modelNum):
     pvalue = predict(G_WEIGHT[modelNum], data)
     if pvalue * label > 0:
+        print "not update"
         return
     
     # update model
-    lambd = 10 
+    lambd = 100 
     new_weight = []
     for i in G_WEIGHT[modelNum]:
+        # pegasos
         new_weight.append(G_WEIGHT[modelNum][i] * ( 1 - 1/sampleNum) + (1 / (lambd * sampleNum))*label*data[i])
 
     # projection
@@ -51,6 +53,7 @@ def train_one_model(data, label, sampleNum, modelNum):
             G_WEIGHT[modelNum][i] = new_weight[i]/(norm2 * math.sqrt(lambd)) 
     else:
         G_WEIGHT[modelNum] = new_weight
+    #print "updated"
 
 def train_one_sample(data, num, sampleNum):
     for modelNum in range(10):
@@ -79,14 +82,19 @@ if __name__== "__main__":
     # test
     testdir = "./testDigits/"
     files = os.listdir(testdir)  
+    right = 0
     for file in files:
         data = parse_image(testdir + file)
         print "testing:", file
+        num = int(file[0])
         for i in range(10):
             pvalue = predict(G_WEIGHT[i], data)
             if pvalue > 0:
                 print i, "prdict:", 1
+                if i == num:
+                    right += 1
             else:
                 print i, "prdict:", -1
         
+    print right
         
