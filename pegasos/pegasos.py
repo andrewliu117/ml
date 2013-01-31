@@ -22,17 +22,18 @@ def predict(model, data):
     ret = 0
     for i in range(32*32):
         ret += model[i]*data[i]
-    return i
+    return ret
 
 def train_one_model(data, label, sampleNum, modelNum):
     pvalue = predict(G_WEIGHT[modelNum], data)
     # the hinge loss
+    #print pvalue
     if pvalue * label >= 1:
-        #print "not update"
+        print "not update"
         return
     
     # update model
-    lambd = 100 
+    lambd = 0.5
     new_weight = []
     for i in range(32*32):
         # pegasos
@@ -49,15 +50,16 @@ def train_one_model(data, label, sampleNum, modelNum):
             G_WEIGHT[modelNum][i] = new_weight[i]/(norm2 * math.sqrt(lambd)) 
     else:
         G_WEIGHT[modelNum] = new_weight
-    print "updated"
+    #print "updated"
 
 def train_one_sample(data, num, sampleNum):
     for modelNum in range(10):
+        label = -1
         if num == modelNum:
             label = 1
-        else:
-            label = -1
+        #print "label=", label
         train_one_model(data, label, sampleNum, modelNum)
+    #sys.exit(0)
 
 if __name__== "__main__":
     for i in range(10):
@@ -79,18 +81,31 @@ if __name__== "__main__":
     testdir = "./testDigits/"
     files = os.listdir(testdir)  
     right = 0
+    wrong = 0
+    can_not_classify = 0
+    total = 0
     for file in files:
+        total += 1
         data = parse_image(testdir + file)
         print "testing:", file
         num = int(file[0])
+        classify_failed = True
         for i in range(10):
             pvalue = predict(G_WEIGHT[i], data)
             if pvalue > 0:
+                classify_failed = False
                 print i, "prdict:", 1
                 if i == num:
                     right += 1
+                else:
+                    wrong += 1
             else:
                 print i, "prdict:", -1
+        if classify_failed:
+            can_not_classify += 1
         
-    print right
+    print "right=", right
+    print "wrong=", wrong
+    print "can_not_classify=", can_not_classify
+    print "total=", total
         
