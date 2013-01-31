@@ -20,7 +20,7 @@ def parse_image(path):
 
 def predict(model, data):
     ret = 0
-    for i in model:
+    for i in range(32*32):
         ret += model[i]*data[i]
     return i
 
@@ -28,27 +28,28 @@ def train_one_model(data, label, sampleNum, modelNum):
     pvalue = predict(G_WEIGHT[modelNum], data)
     # the hinge loss
     if pvalue * label >= 1:
-        print "not update"
+        #print "not update"
         return
     
     # update model
     lambd = 100 
     new_weight = []
-    for i in G_WEIGHT[modelNum]:
+    for i in range(32*32):
         # pegasos
-        new_weight.append(G_WEIGHT[modelNum][i] * ( 1 - 1/sampleNum) + (1 / (lambd * sampleNum))*label*data[i])
+        a = G_WEIGHT[modelNum][i] * ( 1 - 1.0/sampleNum) + (1.0 / (lambd * sampleNum))*label*data[i]
+        new_weight.append(a)
 
     # projection
     norm2 = 0
-    for i in new_weight:
+    for i in range(32*32):
         norm2 += math.pow(new_weight[i], 2)
     norm2 = math.sqrt(norm2)
     if norm2 > (1/math.sqrt(lambd)):
-        for i in new_weight: 
+        for i in range(32*32): 
             G_WEIGHT[modelNum][i] = new_weight[i]/(norm2 * math.sqrt(lambd)) 
     else:
         G_WEIGHT[modelNum] = new_weight
-    #print "updated"
+    print "updated"
 
 def train_one_sample(data, num, sampleNum):
     for modelNum in range(10):
